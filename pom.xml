@@ -47,12 +47,11 @@
     </repository>
   </repositories>
 
-  
   <dependencies>
     <dependency>
       <groupId>origami</groupId>
       <artifactId>origami</artifactId>
-      <version>4.7.0-2</version>
+      <version>4.7.0-3</version>
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>
@@ -90,10 +89,7 @@
           <artifactId>maven-resources-plugin</artifactId>
           <version>3.0.2</version>
         </plugin>
-        <plugin>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.0</version>
-        </plugin>
+
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.22.1</version>
@@ -111,25 +107,6 @@
           <version>3.1.1</version>
         </plugin>
 
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>exec-maven-plugin</artifactId>
-          <version>1.2.1</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>java</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <mainClass>hello.Gallery</mainClass>
-            <!-- <arguments>
-      <argument>foo</argument>
-      <argument>bar</argument>
-    </arguments> -->
-          </configuration>
-        </plugin>
 
       </plugins>
     </pluginManagement>

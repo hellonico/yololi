@@ -234,7 +234,7 @@ public class Gallery extends Application {
         });
 
 
-        items = FXCollections.observableArrayList("tag1", "tag2");
+        items = FXCollections.observableArrayList("flower", "cloud");
         tagListView = new ListView<>(items);
         tagListView.setCellFactory(TextFieldListCell.forListView());
         tagListView.setEditable(true);
@@ -258,12 +258,12 @@ public class Gallery extends Application {
         area = new TextArea();
 
         Button yolo = new Button();
-        yolo.setText("YOLO");
+        yolo.setText("Create Yolo Files");
         yolo.setPrefWidth(200.0);
         yolo.setOnAction((ActionEvent event) -> {
             try {
-                yolo();
-            } catch (IOException e) {
+                Export.yolo(workDirectoy, store, tagListView, images);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
@@ -277,7 +277,7 @@ public class Gallery extends Application {
         listRectsX.setCellFactory(TextFieldListCell.forListView(new StringConverter<>() {
             @Override
             public String toString(TaggedRectangle object) {
-                return object.toString() + "[" + object.toYolo() + "]";
+                return object.toString() + "[" + object.toYolo(currentImage) + "]";
             }
 
             @Override
@@ -368,119 +368,6 @@ public class Gallery extends Application {
         }
     }
 
-    private void deleteDirectoryStream(Path path) throws IOException {
-        Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-    }
-
-    /**
-     * @throws IOException
-     */
-    private void yolo() throws IOException {
-        String _yolo = workDirectoy.getPath() + File.separator + "yolo";
-        File yolo = new File(_yolo);
-        yolo.mkdirs();
-        deleteDirectoryStream(Path.of(_yolo));
-        log("Yolo Dir Created");
-
-        File img = new File(_yolo + File.separator + "img");
-        img.mkdirs();
-        log("Img Dir Created");
-
-        ArrayList<File> taggedImages = new ArrayList<>();
-        for (File i : images) {
-            ArrayList<TaggedRectangle> rects = store.get(i);
-            if (rects.size() == 0)
-                continue;
-
-            File j = new File(img.getPath() + File.separator + i.getName());
-            Files.copy(i.toPath(), j.toPath());
-            taggedImages.add(j);
-
-            String txtj = j.getPath().substring(0, j.getPath().lastIndexOf(".")) + ".txt";
-            FileWriter jtxt = new FileWriter(txtj);
-            for (TaggedRectangle r : rects) {
-                jtxt.write(r.toYolo() + "\n");
-            }
-            jtxt.close();
-        }
-        log("Image folder Completed");
-
-        // https://www.vogella.com/tutorials/JavaAlgorithmsShuffle/article.html
-        Collections.shuffle(taggedImages);
-        log("Shuffling tagged images");
-
-        int ind = (int) (taggedImages.size() * 0.8);
-        List<File> trainImages = taggedImages.subList(0, ind);
-        List<File> testImages = taggedImages.subList(ind, taggedImages.size());
-
-        // train.txt
-        FileWriter train_txt = new FileWriter(_yolo + File.separator + "train.txt");
-        for (File f : trainImages) {
-            train_txt.append(f.getPath().replaceAll(_yolo + "/", "") + "\n");
-        }
-        train_txt.close();
-        log("generated train.txt");
-
-        // valid.txt
-        FileWriter valid_txt = new FileWriter(_yolo + File.separator + "test.txt");
-        for (File f : testImages) {
-            valid_txt.append(f.getPath().replaceAll(_yolo + "/", "") + "\n");
-        }
-        valid_txt.close();
-        log("generated valid.txt");
-
-        // obj.data
-        FileWriter data = new FileWriter(_yolo + File.separator + "obj_data.txt");
-        int classCount = tagListView.getItems().size();
-        data.write("classes\t= " + classCount + "\n");
-        data.write("train\t= train.txt" + "\n");
-        data.write("valid\t= test.txt" + "\n");
-        data.write("names\t= obj_names.txt" + "\n");
-        data.write("backup\t= weights" + "\n");
-        data.close();
-        log("generated obj_data.txt");
-
-        // obj.names
-        FileWriter names = new FileWriter(_yolo + File.separator + "obj_names.txt");
-        for (String str : tagListView.getItems()) {
-            names.write(str + "\n");
-        }
-        names.close();
-        log("generated obj_names.txt");
-
-        // yolo.cfg
-        URL yoloCfg = this.getClass().getResource("/yolo.cfg");
-        Path path = Paths.get(yoloCfg.getPath());
-        Charset charset = StandardCharsets.UTF_8;
-        String content = Files.readString(path, charset);
-        /*
-        CUSTOMIZE YOLO CONFIG
-         */
-        content = content.replaceAll("classes=2", "classes=" + classCount);
-        content = content.replaceAll("filters=18", "filters=" + 3 * (5 + classCount));
-        /*
-        CUSTOMIZE YOLO CONFIG
-         */
-        Files.write(Paths.get(yolo + File.separator + "yolo.cfg"), content.getBytes(charset));
-        log("generated yolo.cfg");
-
-        // backup folder
-        File weights = new File(_yolo + File.separator + "weights");
-        weights.mkdir();
-        log("generated weights folder");
-
-        // script train.sh
-        FileWriter train_sh = new FileWriter(_yolo + File.separator + "train.sh");
-        train_sh.write("wget -N https://pjreddie.com/media/files/darknet53.conv.74\n");
-        train_sh.write("darknet detector train obj_data.txt yolo.cfg darknet53.conv.74\n");
-        train_sh.close();
-        log("generated train.sh");
-
-        // open folder
-        if (Desktop.isDesktopSupported()) {
-            Desktop.getDesktop().open(new File(_yolo));
-        }
-    }
 
     private void save() {
         try {

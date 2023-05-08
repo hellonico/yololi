@@ -3,6 +3,9 @@ package hello;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.ximgproc.Ximgproc;
 
 import java.io.*;
 
@@ -32,9 +35,12 @@ public class TaggedRectangle extends Rectangle implements Serializable, External
                 + this.widthProperty().get() + "x" + this.heightProperty().get() + "]";
     }
 
-    public String toYolo() {
-        return tagI + " " + 8*this.xProperty().intValue() + " " + 8*this.yProperty().intValue() + " "
-                + 8*this.widthProperty().intValue() + " " + 8*this.heightProperty().intValue();
+    public String toYolo(File image) {
+        Size s = Imgcodecs.imread(image.getAbsolutePath()).size();
+//        return tagI + " " + 8*this.xProperty().intValue() + " " + 8*this.yProperty().intValue() + " "
+//                + 8*this.widthProperty().intValue() + " " + 8*this.heightProperty().intValue();
+        return tagI + " " + this.xProperty().intValue()/s.width + " " + this.yProperty().intValue()/s.height + " "
+                + this.widthProperty().intValue()/s.width + " " + this.heightProperty().intValue()/s.height;
     }
 
     @Override
