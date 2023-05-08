@@ -12,6 +12,16 @@
     <maven.compiler.source>1.11</maven.compiler.source>
     <maven.compiler.target>1.11</maven.compiler.target>
   </properties>
+  
+
+  <distributionManagement>
+    <repository>
+      <id>vendredi</id>
+      <name>vendredi</name>
+      <url>https://repository.hellonico.info/repository/hellonico/</url>
+    </repository>
+  </distributionManagement>
+
 
   <repositories>
     <repository>
